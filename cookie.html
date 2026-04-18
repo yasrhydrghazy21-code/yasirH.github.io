@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookie Chase</title>
+
+<style>
+body { margin:0; font-family:Arial; overflow:hidden; background:#111; color:white; }
+#cookieBanner { position:fixed; bottom:0; width:100%; background:#222; padding:20px; text-align:center; }
+button { padding:10px 20px; cursor:pointer; }
+#game, #message, #portal { display:none; text-align:center; }
+#cookie {
+  position:absolute;
+  width:70px;
+  height:70px;
+  background:url('https://cdn-icons-png.flaticon.com/512/1047/1047711.png') no-repeat center/contain;
+}
+#timer { font-size:24px; }
+#counter { font-size:20px; margin-top:10px; }
+#portal {
+  position:absolute; top:40%; left:45%; font-size:50px; color:cyan; animation:glow 1s infinite alternate;
+}
+@keyframes glow {
+  from { text-shadow:0 0 10px cyan; }
+  to { text-shadow:0 0 30px white; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="cookieBanner">
+  This site uses cookies 🍪
+  <button onclick="startGame()">Accept</button>
+</div>
+
+<div id="message">Then you must catch the cookie!</div>
+
+<div id="game">
+  <div id="timer">30</div>
+  <div id="counter">Clicks: 0 / 35</div>
+  <div id="cookie"></div>
+</div>
+
+<a id="portal" href="index2.html">✖</a>
+
+<audio id="bgMusic" src="your-music.mp3" loop></audio>
+<audio id="clickSound" src="coin.mp3"></audio>
+
+<script>
+let clicks = 0;
+let time = 30;
+let timerInterval;
+let moveInterval;
+let helped = false;
+
+function speak(audioFile) {
+  let audio = new Audio(audioFile);
+  audio.play();
+}
+
+function startGame() {
+  document.getElementById('cookieBanner').style.display='none';
+  document.getElementById('message').style.display='block';
+
+  speak('voice5/comeon.mp3');
+
+  setTimeout(()=>{
+    document.getElementById('message').style.display='none';
+    document.getElementById('game').style.display='block';
+    document.getElementById('bgMusic').play();
+
+    moveCookieFast();
+    startTimer();
+
+    speak('voice5/ridiculoss.mp3');
+  },2000);
+}
+
+function moveCookieFast() {
+  let cookie = document.getElementById('cookie');
+
+  function handleClick(){
+    clicks++;
+    document.getElementById('clickSound').play();
+
+    document.getElementById('counter').innerText = "Clicks: " + clicks + " / 35";
+
+    if(clicks >= 35) win();
+  }
+
+  // PC
+  cookie.onclick = handleClick;
+
+  // MOBILE FIX
+  cookie.addEventListener('touchstart', handleClick, {passive:true});
+
+  moveInterval = setInterval(()=>{
+    cookie.style.top = Math.random()*90 + '%';
+    cookie.style.left = Math.random()*90 + '%';
+  }, 1000);
+}
+
+function startTimer() {
+  timerInterval = setInterval(()=>{
+    time--;
+    document.getElementById('timer').innerText = time;
+
+    if(time === 5 && clicks < 35 && !helped) {
+      helped = true;
+      speak('voice5/help.mp3');
+      time = 50;
+    }
+
+    if(time <= 0) {
+      clearInterval(timerInterval);
+      clearInterval(moveInterval);
+      alert('Game Over');
+    }
+  },1000);
+}
+
+function win() {
+  clearInterval(timerInterval);
+  clearInterval(moveInterval);
+
+  document.getElementById('game').style.display='none';
+  document.getElementById('portal').style.display='block';
+
+  speak('voice5/back.mp3');
+  setTimeout(()=> speak('voice5/gooose.mp3'),1500);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credits</title>
+
+<style>
+body{
+    margin:0;
+    background:black;
+    color:white;
+    font-family:Comic Sans MS, cursive;
+    overflow:hidden;
+    text-align:center;
+}
+
+#startBtn{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    padding:15px 30px;
+    font-size:20px;
+    background:cyan;
+    border:none;
+    cursor:pointer;
+    border-radius:10px;
+}
+
+#credits{
+    position:absolute;
+    width:100%;
+    top:100%;
+    display:none;
+}
+
+.line{
+    font-size:28px;
+    margin:40px 0;
+    opacity:0;
+}
+
+#blackScreen{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    opacity:0;
+    transition:opacity 2s;
+    pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<button id="startBtn">START</button>
+
+<audio id="music" src="end.mp4" loop></audio>
+
+<div id="blackScreen"></div>
+
+<div id="credits">
+    <div class="line">Created by Yasir haider</div>
+    <div class="line"> a Computer science student at UOT in Baghdad</div>
+    <div class="line">in Network and Web Development Department</div>
+    <div class="line">using: HTML, CSS, JavaScript</div>
+    <div class="line">Special Thanks to Pixabay & Khinsider</div>
+    <div class="line">Also special thanks to fishAI</div>
+    <div class="line">also a little help from ChatGPT</div>
+    <div class="line">and github for sharing this website</div>
+    <div class="line">did you enjoy hearing this song ?</div>
+    <div class="line">it was made by me using suno ai </div>
+    <div class="line">so do not ask me what is the name of the band</div>
+    <div class="line">also</div>
+    <div class="line">what is your favorite video game</div>
+    <div class="line">mine is god of war(escpacilly the greek era)</div>
+    <div class="line">also</div>
+    <div class="line">why are you still there</div>
+    <div class="line">the game is finished</div>
+    <div class="line">you have lost</div>
+    <div class="line">mr risay and the ai have won and there is no continue..... i guess??</div>
+     <div class="line">the cre</div>
+    <div class="line">there is no post credit scene btw</div>
+    <div class="line">this is not a superhero movie</div>
+    <div class="line">unless</div>
+    <div class="line">this website become populer</div>
+     <div class="line">then maybe a sequel will be made</div>
+      <div class="line">bbbut for now</div>
+    <div class="line">The End???</div>
+</div>
+
+<script>
+
+let startBtn = document.getElementById("startBtn");
+let music = document.getElementById("music");
+let credits = document.getElementById("credits");
+let black = document.getElementById("blackScreen");
+let voice = new Audio("voice8/singing.mp3");
+
+let started = false;
+
+// ✅ SINGLE SAFE START FUNCTION
+function startExperience(e){
+    if(started) return;
+    started = true;
+
+    if(e) e.preventDefault();
+
+    startBtn.style.display = "none";
+
+    music.play().catch(()=>{});
+
+    credits.style.display = "block";
+
+    startCredits();
+}
+
+// ✅ FIXED EVENTS (NO DOUBLE TRIGGER)
+startBtn.addEventListener("click", startExperience);
+startBtn.addEventListener("touchstart", startExperience);
+
+// ================= SHOW + SCROLL =================
+let lines = document.querySelectorAll(".line");
+
+function startCredits(){
+
+    lines.forEach((line, index)=>{
+        setTimeout(()=>{
+            line.style.opacity = 1;
+        }, index * 2000);
+    });
+
+    let pos = window.innerHeight;
+
+    function scroll(){
+        pos -= 0.3;
+        credits.style.top = pos + "px";
+        requestAnimationFrame(scroll);
+    }
+    scroll();
+
+    setTimeout(()=>{
+
+        music.pause();
+        music.currentTime = 0;
+
+        credits.style.display = "none";
+
+        black.style.opacity = 1;
+
+        setTimeout(()=>{
+            voice.play().catch(()=>{});
+        }, 2000);
+
+    }, 176000);
+}
+
+</script>
+
+</body>
+</html>

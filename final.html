@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Final Scene</title>
+
+<style>
+body{
+    margin:0;
+    background:black;
+    color:white;
+    text-align:center;
+    font-family:Arial;
+}
+
+video{
+    width:100%;
+    max-height:100vh;
+}
+
+#nextLink{
+    display:none;
+    margin-top:20px;
+}
+
+a{
+    color:cyan;
+    text-decoration:none;
+    border:1px solid cyan;
+    padding:10px 20px;
+    border-radius:5px;
+}
+</style>
+</head>
+
+<body>
+
+<video id="vid" autoplay controls playsinline>
+    <source src="cat.mp4" type="video/mp4">
+</video>
+
+<div id="nextLink">
+    <a href="credits.html">Continue...</a>
+</div>
+
+<script>
+
+// ================= AUDIO ENGINE =================
+let voicePlayer = new Audio();
+let index = 0;
+let locked = false;
+
+const lines = [
+    "voice7/forgot.mp3",
+    "voice7/AI.mp3",
+    "voice7/intellegent.mp3",
+    "voice7/never.mp3",
+    "voice7/plan.mp3",
+    "voice7/evil.mp3"
+];
+
+// PC + MOBILE FIX (unlock audio)
+function unlockAudio(){
+    voicePlayer.play().then(()=>{
+        voicePlayer.pause();
+        voicePlayer.currentTime = 0;
+    }).catch(()=>{});
+}
+
+document.addEventListener("click", unlockAudio, { once:true });
+document.addEventListener("touchstart", unlockAudio, { once:true, passive:true });
+
+// prevent video replay after ending
+let video = document.getElementById("vid");
+
+video.addEventListener("ended", () => {
+
+    if(locked) return;
+    locked = true;
+
+    video.controls = false;
+    video.pause();
+
+    startAI();
+
+});
+
+// OPTIONAL extra safety
+video.addEventListener("seeking", () => {
+    if(locked){
+        video.currentTime = video.duration;
+    }
+});
+
+// ================= AI SEQUENCE =================
+function playNext(){
+
+    if(index >= lines.length){
+        document.getElementById("nextLink").style.display = "block";
+        return;
+    }
+
+    voicePlayer.src = lines[index];
+    voicePlayer.play().catch(()=>{});
+
+    index++;
+
+    voicePlayer.onended = () => {
+        playNext();
+    };
+}
+
+function startAI(){
+    setTimeout(() => {
+        index = 0;
+        playNext();
+    }, 600);
+}
+
+</script>
+
+</body>
+</html>

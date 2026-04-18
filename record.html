@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Page</title>
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: black;
+    color: white;
+    overflow: hidden;
+    position: relative;
+}
+video { max-width: 80%; }
+#subs {
+    position: absolute;
+    bottom: 10%;
+    width: 100%;
+    text-align: center;
+    font-size: 20px;
+    font-family: Arial;
+    color: white;
+}
+@keyframes pulse {
+    from { transform: translate(-50%, -50%) scale(1); }
+    to { transform: translate(-50%, -50%) scale(1.2); }
+}
+#crack {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('crack.png') no-repeat center center;
+    background-size: cover;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+</style>
+</head>
+<body>
+
+<video id="vid">
+    <source src="record.mp4" type="video/mp4">
+</video>
+<div id="subs"></div>
+<div id="crack"></div>
+
+<script>
+const video = document.getElementById("vid");
+const subs = document.getElementById("subs");
+const crack = document.getElementById("crack");
+
+// Volume
+let normalVolume = 0.4;
+let lowVolume = 0.08;
+video.volume = normalVolume;
+
+// Glitch sound
+const glitchSound = new Audio('glitch.mp3');
+
+// Audio queue system
+let audioQueue = [];
+let currentlyPlaying = false;
+
+function enqueueAudio(file, text="", callback=null){
+    audioQueue.push({file,text,callback});
+    if(!currentlyPlaying) playNextAudio();
+}
+
+function playNextAudio(){
+    if(audioQueue.length === 0){ currentlyPlaying=false; return; }
+    currentlyPlaying = true;
+    const {file, text, callback} = audioQueue.shift();
+    fadeVolume(lowVolume, 400);
+    showSub(text);
+    const audio = new Audio(file);
+    audio.play();
+    audio.onended = ()=>{
+        fadeVolume(normalVolume,600);
+        clearSub();
+        if(callback) callback();
+        playNextAudio();
+    };
+    audio.onerror = ()=>{
+        fadeVolume(normalVolume,600);
+        clearSub();
+        if(callback) callback();
+        playNextAudio();
+    };
+}
+
+// Volume fade
+function fadeVolume(target,duration=500){
+    const steps=20;
+    const stepTime=duration/steps;
+    const start=video.volume;
+    const change=target-start;
+    let currentStep=0;
+    const fade=setInterval(()=>{
+        currentStep++;
+        video.volume=start + change*(currentStep/steps);
+        if(currentStep>=steps) clearInterval(fade);
+    },stepTime);
+}
+
+// Subtitles
+function showSub(text){ subs.textContent=text; }
+function clearSub(){ subs.textContent=""; }
+
+// Sequence runner
+function playSequence(list,index=0,callback=null){
+    if(index>=list.length){ if(callback) callback(); return; }
+    const item=list[index];
+    enqueueAudio(item.file,item.text,()=>playSequence(list,index+1,callback));
+}
+
+// Glitch
+let glitchActive=false;
+function startGlitch(){
+    if(glitchActive) return;
+    glitchActive=true;
+    glitchSound.loop=true;
+    glitchSound.currentTime=0;
+    glitchSound.play();
+    crack.style.opacity=1;
+
+    const shakeLoop=setInterval(()=>{
+        if(!glitchActive){ clearInterval(shakeLoop); document.body.style.transform='translate(0,0)'; return; }
+        const x=(Math.random()-0.5)*15;
+        const y=(Math.random()-0.5)*15;
+        document.body.style.transform=`translate(${x}px,${y}px)`;
+    },30);
+
+    const glitchText=document.createElement("div");
+    glitchText.innerHTML="@@@###$$$%%%";
+    glitchText.style.position="absolute";
+    glitchText.style.top="30%";
+    glitchText.style.left="40%";
+    glitchText.style.fontSize="30px";
+    glitchText.style.color="white";
+    document.body.appendChild(glitchText);
+    setTimeout(()=>glitchText.remove(),3000);
+}
+
+function stopGlitch(){ 
+    glitchActive=false; 
+    crack.style.opacity=0; 
+    glitchSound.pause(); 
+}
+
+// Triangle
+function showTriangle(){
+    const tri=document.createElement("div");
+    tri.innerHTML="▲";
+    tri.style.position="absolute";
+    tri.style.top="70%";
+    tri.style.left="50%";
+    tri.style.transform="translate(-50%,-50%)";
+    tri.style.fontSize="50px";
+    tri.style.color="cyan";
+    tri.style.cursor="pointer";
+    tri.style.textShadow="0 0 10px cyan,0 0 20px cyan,0 0 40px cyan";
+    tri.style.animation="pulse 1s infinite alternate";
+    document.body.appendChild(tri);
+    tri.onclick=()=>{ window.location.href="about.html"; };
+}
+
+// BEFORE VIDEO
+const beforeVideo=[
+    {file:'ai1/donot.mp3', text:"I don't remember Mr Risay making a video..."},
+    {file:'ai1/check.mp3', text:"...let's check it."}
+];
+
+const startVoice={file:'ai1/heck.mp3', text:"Who the heck is that?"};
+const sec17Voice={file:'ai1/talk.mp3', text:"I do not talk a lot... or am I?"};
+const sec50Voice={file:'ai1/annoying.mp3', text:"Annoying."};
+
+const afterStop=[
+    {file:'ai1/noway.mp3', text:"There is no way Mr Risay made this."},
+    {file:'ai1/hacked.mp3', text:"There must be a hacker."}
+];
+
+const dialogue=[
+    {file:'ai2/paused.mp3', text:"Who paused my helpful video?"},
+    {file:'ai1/who.mp3', text:"Who are you and why did you hack this?"},
+    {file:'ai2/truth.mp3', text:"This video is for the users."},
+    {file:'ai1/soo.mp3', text:"So you're causing the glitches..."},
+    {file:'ai2/both.mp3', text:"Let's say we both did."},
+    {file:'ai1/die.mp3', text:"Then you must die."},
+    {type:'GLITCH'},
+    {file:'ai2/imnot.mp3', text:"I am not an AI..."},
+    {file:'ai2/russianman.mp3', text:"I am the Russian man."},
+    {file:'ai1/right.mp3', text:"Man... he's the annoying one."}
+];
+
+let triggered17=false, triggered50=false, videoStopped=false;
+
+// START (PC + MOBILE FIX)
+function startExperience(){
+    playSequence(beforeVideo,0,()=>{ 
+        video.play();
+        enqueueAudio(startVoice.file,startVoice.text);
+    });
+}
+
+// PC
+document.body.addEventListener("click", startExperience, {once:true});
+
+// MOBILE/TABLET
+document.body.addEventListener("touchstart", startExperience, {once:true}, {passive:true});
+
+// VIDEO TIMED TRIGGERS
+video.addEventListener("timeupdate",()=>{
+    if(video.currentTime>=17 && !triggered17){
+        triggered17=true;
+        enqueueAudio(sec17Voice.file,sec17Voice.text);
+    }
+    if(video.currentTime>=50 && !triggered50){
+        triggered50=true;
+        enqueueAudio(sec50Voice.file,sec50Voice.text);
+    }
+    if(video.currentTime>=60 && !videoStopped){
+        videoStopped=true;
+        video.pause();
+        playSequence(afterStop,0,()=>playDialogue(0));
+    }
+});
+
+// DIALOGUE
+function playDialogue(index){
+    if(index>=dialogue.length){
+        stopGlitch();
+        showTriangle();
+        return;
+    }
+    const item=dialogue[index];
+    if(item.type==='GLITCH'){
+        startGlitch();
+        playDialogue(index+1);
+        return;
+    }
+    enqueueAudio(item.file,item.text,()=>playDialogue(index+1));
+}
+</script>
+</body>
+</html>

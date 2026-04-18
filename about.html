@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Mr Risay</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle, #0a0a0a, #000);
+    color: white;
+    overflow: hidden;
+}
+
+#startScreen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 999;
+}
+
+#startBtn {
+    padding: 18px 40px;
+    font-size: 22px;
+    background: lime;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 0 25px lime;
+}
+
+
+#main {
+    display: none;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+
+.box {
+    width: 70%;
+    height: 60%;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid cyan;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 0 25px cyan;
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.nav {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    background: cyan;
+    font-weight: bold;
+}
+
+button:disabled {
+    background: gray;
+}
+
+#goBack {
+    display: none;
+    margin-top: 15px;
+    color: yellow;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+
+<div id="startScreen">
+    <h1>Mr Risay System</h1>
+    <button id="startBtn">START</button>
+</div>
+
+
+<div id="main">
+
+    <div class="box" id="box0">
+        <h2>Biography</h2>
+        <p>
+            I am Mr Risay.<br><br>
+            I am a computer scientist and web developer.<br>
+            Born on 1994/03/19 in Moscow.<br>
+            I studied at ITMO University.<br><br>
+
+            🎮 Minecraft is my world of structure.<br>
+            🍕 Pineapple pizza is my questionable choice.<br>
+            🎬 The Matrix is my reference material.
+        </p>
+    </div>
+
+    <div class="box" id="box1">
+        <h2>Ideology</h2>
+        <p>
+            People are forgetting how to build from scratch.<br><br>
+            AI is becoming a shortcut for everything.<br><br>
+            Developers skip HTML, CSS, JS…<br><br>
+            I don’t hate AI.<br>
+            I hate dependency.
+        </p>
+    </div>
+
+    <div class="box" id="box2">
+        <h2>Final Plan</h2>
+        <p>
+            I will build an AI system similar to ChatGPT…<br><br>
+            but designed to influence human behavior.<br><br>
+            People will depend on it without realizing it.<br><br>
+            And when they do… I will reveal the truth behind dependency.<br><br>
+            It is not evil.<br>
+            It is awareness.
+        </p>
+    </div>
+
+    <div class="nav">
+        <button id="left">⬅</button>
+        <button id="right">➡</button>
+    </div>
+
+    <a id="goBack" href="cookie.html">Go Back</a>
+
+</div>
+
+<script>
+
+let boxIndex = 0;
+let canMove = true;
+
+const boxes = document.querySelectorAll(".box");
+let audio = new Audio();
+
+
+const voice = [
+"voice4/deny.mp3","voice4/billgates.mp3","voice4/believe.mp3","voice4/russian.mp3","voice4/where.mp3",
+
+"voice4/no.mp3","voice4/move.mp3",
+
+"voice4/omg.mp3","voice4/butwhy.mp3","voice4/thought.mp3","voice4/nothing.mp3","voice4/website.mp3","voice4/together.mp3"
+];
+
+function showBox(i){
+    boxes.forEach(b => b.style.display = "none");
+    boxes[i].style.display = "block";
+}
+
+
+function playVoice(start, count, callback){
+    let i = 0;
+
+    function next(){
+        if(i >= count){
+            if(callback) callback();
+            return;
+        }
+
+        audio.src = voice[start + i];
+        audio.play();
+
+        audio.onended = () => {
+            i++;
+            next();
+        };
+    }
+
+    next();
+}
+
+
+function startExperience(){
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("main").style.display = "flex";
+
+    showBox(0);
+
+    playVoice(0, 5);
+}
+
+document.getElementById("startBtn").onclick = startExperience;
+document.getElementById("startBtn").addEventListener("touchstart", startExperience, {passive:true});
+
+
+function goRight(){
+    if(!canMove) return;
+
+    if(boxIndex === 0){
+        canMove = false;
+        playVoice(5, 2, () => {
+            canMove = true;
+        });
+    }
+
+    if(boxIndex === 1){
+        canMove = false;
+
+        setTimeout(() => {
+            playVoice(7, 6, () => {
+                canMove = true;
+                document.getElementById("goBack").style.display = "block";
+            });
+        }, 800);
+    }
+
+    if(boxIndex < 2){
+        boxIndex++;
+        showBox(boxIndex);
+    }
+}
+
+document.getElementById("right").onclick = goRight;
+document.getElementById("right").addEventListener("touchstart", goRight, {passive:true});
+
+function goLeft(){
+    if(!canMove) return;
+
+    if(boxIndex > 0){
+        boxIndex--;
+        showBox(boxIndex);
+    }
+}
+
+document.getElementById("left").onclick = goLeft;
+document.getElementById("left").addEventListener("touchstart", goLeft, {passive:true});
+
+</script>
+
+</body>
+</html>

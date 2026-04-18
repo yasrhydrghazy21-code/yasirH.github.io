@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unfinished Website</title>
+</head>
+<body>
+
+<h4>hello</h4>
+
+<script>
+    // Replace these with your AI-generated voice files
+    const introVoices = [
+        'voice3/thinking.mp3','voice3/amazing.mp3','voice3/hello.mp3',
+        'voice3/tag.mp3','voice3/laugh.mp3','voice3/excited.mp3'
+    ];
+    const click5Voices = ['voice3/adorable.mp3'];
+    const click20Voices = ['voice3/javascript.mp3'];
+
+    let clickCount = 0;
+    let introPlayed = false;
+
+    function playVoice(file) {
+        const audio = new Audio(file);
+        audio.play();
+    }
+
+    function playIntro(index = 0) {
+        if(index >= introVoices.length) return;
+        const audio = new Audio(introVoices[index]);
+        audio.play();
+        audio.onended = () => playIntro(index + 1);
+    }
+
+    function createRandomLink() {
+        const a = document.createElement('a');
+        a.href = 'record.html'; // Replace with your next page
+        a.textContent = 'Click here';
+        a.style.position = 'absolute';
+        a.style.color = 'cyan';
+        a.style.textDecoration = 'underline';
+        a.style.fontSize = '16px';
+
+        const padding = 50;
+        const x = Math.floor(Math.random() * (window.innerWidth - padding*2)) + padding;
+        const y = Math.floor(Math.random() * (window.innerHeight - padding*2)) + padding;
+        a.style.left = x + 'px';
+        a.style.top = y + 'px';
+
+        document.body.appendChild(a);
+    }
+
+    function handleInteraction() {
+        clickCount++;
+
+        // Play intro voices once
+        if(!introPlayed){
+            playIntro();
+            introPlayed = true;
+        }
+
+        // After 5 clicks
+        if(clickCount === 5){
+            playVoice(click5Voices[0]);
+            setTimeout(()=>playVoice(click5Voices[1]), 2000);
+        }
+
+        // After 20 clicks
+        if(clickCount === 20){
+            playVoice(click20Voices[0]);
+            setTimeout(()=>playVoice(click20Voices[1]), 2000);
+            createRandomLink();
+        }
+    }
+
+       document.body.addEventListener('click', handleInteraction);
+
+        document.body.addEventListener('touchstart', handleInteraction);
+</script>
+
+</body>
+</html>

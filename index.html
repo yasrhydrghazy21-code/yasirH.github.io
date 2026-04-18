@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Not A Login</title>
+
+<style>
+body{
+    background:#0b0b0b;
+    color:#eaeaea;
+    font-family:Arial;
+    text-align:center;
+    margin-top:100px;
+    overflow:hidden;
+    transition: transform 0.05s;
+}
+
+input{
+    padding:10px;
+    margin:10px;
+    border-radius:5px;
+    border:none;
+}
+
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:5px;
+    background:#0077ff;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+button.locked{
+    background:gray;
+}
+
+#loader{
+    display:none;
+    margin:20px auto;
+    border:5px solid #333;
+    border-top:5px solid #00c3ff;
+    border-radius:50%;
+    width:40px;
+    height:40px;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    100%{transform:rotate(360deg);}
+}
+
+#msg{
+    margin-top:15px;
+    color:red;
+    font-family:monospace;
+}
+
+.letter{
+    position:absolute;
+    color:lime;
+    font-size:20px;
+}
+
+#secret{
+    position:absolute;
+    width:60px;
+    height:60px;
+    display:none;
+    background:rgba(0,255,255,0.3);
+    border:2px solid cyan;
+    box-shadow:0 0 20px cyan;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Login</h1>
+
+<input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
+
+<button id="btn">Send</button>
+
+<div id="loader"></div>
+<div id="msg"></div>
+<div id="secret"></div>
+<div id="caption" style="
+    margin-top:20px;
+    font-family: monospace;
+    font-size:16px;
+    color: cyan;
+    min-height:24px;
+"></div>
+
+<script>
+
+// ================= AUDIO SYSTEM =================
+let audioPlayer = new Audio();
+let audioUnlocked = false;
+let isImportantPlaying = false;
+
+// PC + MOBILE FIX
+function unlockSystem(){
+    if(audioUnlocked) return;
+    audioUnlocked = true;
+
+    playVoice("voice/hey.mp3", true);
+    setTimeout(()=>playVoice("voice/foryou.mp3", true),3000);
+    setTimeout(()=>playVoice("voice/only.mp3", true),7000);
+
+    startIdle();
+}
+
+document.body.addEventListener("click", unlockSystem, {once:true});
+document.body.addEventListener("touchstart", unlockSystem, {once:true}, {passive:true});
+
+function playVoice(src, important=false){
+
+    if(!audioUnlocked) return;
+
+    if(isImportantPlaying && !important) return;
+
+    audioPlayer.pause();
+    audioPlayer.src = src;
+
+    if(important) isImportantPlaying = true;
+
+    audioPlayer.play().catch(()=>{});
+
+    audioPlayer.onended = ()=>{
+        if(important) isImportantPlaying = false;
+    };
+}
+
+// ================= STATES =================
+let firstWrong=false;
+let locked=false;
+let clickCount=0;
+
+// ================= IDLE SYSTEM =================
+let idleVoices=[
+    "voice/leave.mp3",
+    "voice/suitable.mp3",
+    "voice/angrybirds.mp3",
+    "voice/free.mp3",
+    "voice/sing.mp3"
+];
+
+function startIdle(){
+    setInterval(()=>{
+        if(!isImportantPlaying){
+            let v = idleVoices[Math.floor(Math.random()*idleVoices.length)];
+            playVoice(v);
+        }
+    },30000);
+}
+
+// ================= LOGIN =================
+let btn=document.getElementById("btn");
+
+btn.onclick=function(){
+
+    let email=document.getElementById("email").value;
+    let pass=document.getElementById("password").value;
+    let msg=document.getElementById("msg");
+    let loader=document.getElementById("loader");
+
+    if(locked){
+        clickCount++;
+
+        if(clickCount===5){
+            playVoice("voice/stop.mp3", true);
+        }
+
+        if(clickCount>10){
+            glitchEffect();
+        }
+
+        return;
+    }
+
+    if(email==="mrrisay@email.com" && pass==="password"){
+
+        loader.style.display="block";
+
+        playVoice("voice/suprised.mp3", true);
+
+        setTimeout(()=>{
+
+            loader.style.display="none";
+
+            locked=true;
+            btn.innerHTML="🔒 LOCKED";
+            btn.classList.add("locked");
+
+            playVoice("voice/never.mp3", true);
+
+        },5000);
+
+        return;
+    }
+
+    msg.innerText="Wrong. You should enter the creator email and password.";
+
+    if(!firstWrong){
+        firstWrong=true;
+
+        playVoice("voice/wrong.mp3", true);
+
+        setTimeout(()=>{
+            playVoice("voice/hint.mp3", true);
+        },2000);
+
+        setTimeout(()=>{
+            idleVoices.push("voice/email.mp3");
+            idleVoices.push("voice/password.mp3");
+        },40000);
+    }
+};
+
+// ================= GLITCH =================
+let shakeInterval;
+
+function glitchEffect(){
+
+    playVoice("voice/great.mp3", true);
+
+    shakeInterval=setInterval(()=>{
+        let x=Math.random()*20-10;
+        let y=Math.random()*20-10;
+        document.body.style.transform=`translate(${x}px,${y}px)`;
+    },50);
+
+    for(let i=0;i<100;i++){
+        let s=document.createElement("span");
+        s.className="letter";
+        s.innerText=String.fromCharCode(33+Math.random()*94);
+        s.style.left=Math.random()*window.innerWidth+"px";
+        s.style.top=Math.random()*window.innerHeight+"px";
+        document.body.appendChild(s);
+    }
+
+    let box=document.getElementById("secret");
+    box.style.display="block";
+    box.style.left=Math.random()*(window.innerWidth-60)+"px";
+    box.style.top=Math.random()*(window.innerHeight-60)+"px";
+
+    box.onclick=()=>{
+        clearInterval(shakeInterval);
+        document.body.style.transform="translate(0,0)";
+        window.location.href="breakout.html";
+    };
+}
+
+</script>
+
+</body>
+</html>

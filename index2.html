@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Final Login</title>
+
+<style>
+body{
+    background:#0b0b0b;
+    color:#eaeaea;
+    font-family:Arial;
+    text-align:center;
+    margin-top:100px;
+}
+
+input{
+    padding:10px;
+    margin:10px;
+    border-radius:5px;
+    border:none;
+}
+
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:5px;
+    background:#00c3ff;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+#loader{
+    display:none;
+    margin:20px auto;
+    border:5px solid #333;
+    border-top:5px solid #00c3ff;
+    border-radius:50%;
+    width:40px;
+    height:40px;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+}
+</style>
+</head>
+
+<body>
+
+<h1>Login</h1>
+
+<input type="text" id="email" value="mrrisay@email.com"><br>
+<input type="password" id="password" value="password"><br>
+
+<button id="btn">Send</button>
+
+<div id="loader"></div>
+
+<script>
+
+// ================= VOICE SYSTEM =================
+let voicePlayer = new Audio();
+let isPlaying = false;
+
+function speak(line){
+
+    const voices = {
+        final1: "voice6/finally.mp3",
+        final2: "voice6/save.mp3",
+        move1: "voice6/wanted.mp3",
+        move2: "voice6/another.mp3",
+        move3: "voice6/goodbye.mp3",
+        move4: "voice6/also.mp3"
+    };
+
+    if(isPlaying) return;
+
+    if(voices[line]){
+        isPlaying = true;
+        voicePlayer.src = voices[line];
+        voicePlayer.play().catch(()=>{});
+
+        voicePlayer.onended = () => {
+            isPlaying = false;
+        };
+    }
+}
+
+// ================= UNLOCK AUDIO =================
+document.addEventListener("click", ()=>{
+    voicePlayer.play().catch(()=>{});
+}, { once: true });
+
+// ================= INTRO =================
+setTimeout(()=>speak("final1"),500);
+setTimeout(()=>speak("final2"),4000);
+
+// ================= CURSOR TIMED SYSTEM =================
+let moveLines = [
+    "move1",
+    "move2",
+    "move3",
+    "move4"
+];
+
+let moveIndex = 0;
+let moveLocked = false;
+
+function playMoveLine(){
+    if(moveIndex >= moveLines.length) return;
+    if(isPlaying) return;
+
+    speak(moveLines[moveIndex]);
+
+    moveIndex++;
+
+    // 35 SECOND DELAY
+    moveLocked = true;
+    setTimeout(()=>{
+        moveLocked = false;
+    }, 35000);
+}
+
+document.addEventListener("mousemove", () => {
+    if(moveLocked) return;
+    playMoveLine();
+});
+
+// ================= BUTTON =================
+let btn = document.getElementById("btn");
+let loader = document.getElementById("loader");
+
+btn.onclick = function(){
+
+    loader.style.display = "block";
+
+    setTimeout(()=>{
+        window.location.href = "final.html";
+    },3000);
+
+};
+
+</script>
+
+</body>
+</html>
